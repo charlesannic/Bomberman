@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:id="@+id/view"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:layout_margin="10dp">
+
+    <ImageView
+        android:id="@+id/is_selected"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        android:background="@drawable/circle_white_alpha"
+        android:padding="8dp"
+        android:src="@drawable/ic_check"
+        android:contentDescription="Is selected"/>
+
+</RelativeLayout>

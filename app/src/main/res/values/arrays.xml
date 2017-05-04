@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="colors_drawable">
+        <item>@drawable/theme_circle_1</item>
+        <item>@drawable/theme_circle_2</item>
+        <item>@drawable/theme_circle_3</item>
+        <item>@drawable/theme_circle_4</item>
+    </array>
+</resources>

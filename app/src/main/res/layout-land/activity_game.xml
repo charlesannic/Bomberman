@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.app.charles.bomberman.activities.GameActivity">
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnCount="4">
+
+        <com.app.charles.bomberman.views.JoyStick
+            android:id="@+id/joystick"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_columnWeight="1" />
+
+        <RelativeLayout
+            android:id="@+id/grid_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="?android:colorPrimaryDark"
+            android:elevation="6dp"
+            android:layout_columnWeight="2">
+
+            <GridLayout
+                android:id="@+id/grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:background="?android:colorPrimaryDark"
+                android:columnCount="13"
+                android:rowCount="11" />
+
+            <RelativeLayout
+                android:id="@+id/objects_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true" />
+
+        </RelativeLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_columnWeight="1">
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/bomb"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:clickable="true"/>
+
+        </FrameLayout>
+
+    </GridLayout>
+
+</android.support.design.widget.CoordinatorLayout>

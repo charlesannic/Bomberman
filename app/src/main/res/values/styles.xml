@@ -1,0 +1,39 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary1</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark1</item>
+        <item name="colorAccent">@color/colorAccent1</item>
+
+        <item name="android:navigationBarColor">@color/colorPrimaryDark1</item>
+        <item name="android:colorBackground">@color/colorPrimary1</item>
+    </style>
+
+    <style name="AppTheme2" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary2</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark2</item>
+        <item name="colorAccent">@color/colorAccent2</item>
+
+        <item name="android:navigationBarColor">@color/colorPrimaryDark2</item>
+        <item name="android:colorBackground">@color/colorPrimary2</item>
+    </style>
+
+    <style name="AppTheme3" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary3</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark3</item>
+        <item name="colorAccent">@color/colorAccent3</item>
+
+        <item name="android:navigationBarColor">@color/colorPrimaryDark3</item>
+        <item name="android:colorBackground">@color/colorPrimary3</item>
+    </style>
+
+    <style name="AppTheme4" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary4</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark4</item>
+        <item name="colorAccent">@color/colorAccent4</item>
+
+        <item name="android:navigationBarColor">@color/colorPrimaryDark4</item>
+        <item name="android:colorBackground">@color/colorPrimary4</item>
+    </style>
+
+</resources>
