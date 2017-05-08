@@ -9,7 +9,6 @@ import com.app.charles.bomberman.game.Player;
 import com.app.charles.bomberman.java.Direction;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import static android.content.ContentValues.TAG;
 
@@ -49,31 +48,25 @@ public class AI {
         int x = bot.getRoundX(),
                 y = bot.getRoundY();
 
-        //Log.i(TAG, "whereIGo: ");
-
         if (unsafeCases[y][x] == 1) {
-            //Log.i(TAG, "whereIGo: flee");
+            //if (bot.getId() == 2) Log.i(TAG, "whereIGo: 1");
             bot.getDirection().setDirection(flee(x, y));
-        }
-        /*else {
-            if(bot.getBombsCapacity() < bot.getBombs().size()
-                    && blocNearby(x, y)
-                    && safePlaceNear(x, y))
-                bot.getDirection().setPoseBomb(true);
-            else
-            bot.getDirection().setDirection(attack(x, y));
-
-        }*/
-        else if (freeCases[y][x] == 3) {
-            //Log.i(TAG, "whereIGo: blockNearby");
+        } else if (freeCases[y][x] == 3 || someoneNear(x, y)) {
+            //if (bot.getId() == 2) Log.i(TAG, "whereIGo: 2");
             bot.getDirection().setPoseBomb(true);
         } else {
-            int at = attack(x, y);
-            //Log.i(TAG, "whereIGo: attack !!!!!" + at);
-            bot.getDirection().setDirection(at);
+            //if (bot.getId() == 2) Log.i(TAG, "whereIGo: 3");
+            bot.getDirection().setDirection(attack(x, y));
         }
+    }
 
-        //afficher();
+    private boolean someoneNear(int x, int y) {
+        int[][] t = updatePlayersPositionForSpecificPlayer(x, y);
+        return //(y > 0 && t[y - 1][x] == 9) ||
+                //(x > 0 && t[y][x - 1] == 9) ||
+                (t[y][x] == 9);// ||
+                //(y < playersPosition.length - 1 && t[y + 1][x] == 9) ||
+                //(x < playersPosition[0].length - 1 && t[y][x + 1] == 9);
     }
 
     private boolean blocNearby(int x, int y) {
@@ -88,7 +81,6 @@ public class AI {
         if (!blocNearby && y < rows - 1)
             blocNearby = freeCases[y + 1][x] == 2;
 
-        //Log.i(TAG, "blocNearby: " + blocNearby + " " + x + " " + y);
         return blocNearby;
     }
 
@@ -99,26 +91,41 @@ public class AI {
     }
 
     private int attack(int x, int y) {
-        int direction = directionToClosestValue(x, y, freeCases.clone(), 3, NONE, 1, 6);
-        //Log.i(TAG, "attack: abcde " + direction);
-        /*if (direction == Direction.STOP) {
-            int tab[][] = playersPosition.clone();
-            tab[y][x] = 0;
-            direction = directionToClosestValue(x, y, playersPosition.clone(), 5, NONE, 1, 10);
-            Log.i(TAG, "attack: 1 " + direction);
-            if(direction == Direction.STOP) {
-                Log.i(TAG, "attack: 2 ");
-                Random randomGenerator = new Random();
-                direction = randomGenerator.nextInt(4) + 1;
+        int direction = directionToClosestValue(x, y, updatePlayersPositionForSpecificPlayer(x, y), 9, NONE, 1, 6);
+
+        if (direction == Direction.STOP) {
+            direction = directionToClosestValue(x, y, copy(freeCases), 3, NONE, 1, 6);
+
+            if (direction == Direction.STOP) {
+                direction = directionToClosestEnnemy(x, y);
+
+                switch (direction) {
+                    case Direction.LEFT:
+                        if (x > 0 && unsafeCases[y][x - 1] == 1)
+                            direction = Direction.STOP;
+                        break;
+                    case Direction.TOP:
+                        if (y > 0 && unsafeCases[y - 1][x] == 1)
+                            direction = Direction.STOP;
+                        break;
+                    case Direction.RIGHT:
+                        if (x < unsafeCases[0].length - 1 && unsafeCases[y][x + 1] == 1)
+                            direction = Direction.STOP;
+                        break;
+                    case Direction.BOTTOM:
+                        if (y < unsafeCases.length - 1 && unsafeCases[y + 1][x] == 1)
+                            direction = Direction.STOP;
+                        break;
+                }
             }
-        }*/
+        }
 
         return direction;
     }
 
     private int directionToClosestValue(int x, int y, int tab[][], int value, int excludedSide, int length, int maxDepth) {
         //Log.i(TAG, "directionToClosestValue: " + length);
-        if ((value == 3 && unsafeCases[y][x] == 1) || length > maxDepth)
+        if (((value == 3 || value == 9) && unsafeCases[y][x] == 1) || length > maxDepth)
             return Integer.MAX_VALUE;
         else if (tab[y][x] != value) {
             int left = Integer.MAX_VALUE,
@@ -164,8 +171,7 @@ public class AI {
                     , Math.min(top
                             , Math.min(right, bottom)));
             if (length == 1) {
-                //Log.i(TAG, "directionToClosestValue: " + length + " " + left + " " + top + " " + right + " " + left);
-                if(min == Integer.MAX_VALUE)
+                if (min == Integer.MAX_VALUE)
                     return Direction.STOP;
                 else if (min == left)
                     return Direction.LEFT;
@@ -174,19 +180,15 @@ public class AI {
                 else if (min == right)
                     return Direction.RIGHT;
                 else
-                    return Direction.B0TT0M;
+                    return Direction.BOTTOM;
             } else
                 return min;
         } else
             return length;
     }
 
-    /*private int directionToCase(int x, int y, int xDestination, int yDestination, int excludedSide, int length) {
-
-    }*/
-
     private int flee(int x, int y) {
-        return (directionToClosestValue(x, y, unsafeCases.clone(), 0, NONE, 1, Integer.MAX_VALUE));
+        return (directionToClosestValue(x, y, copy(unsafeCases), 0, NONE, 1, Integer.MAX_VALUE));
     }
 
     public void updateBlocksCases(int grid[][], ArrayList<Bomb> bombs, ArrayList<Player> players) {
@@ -194,7 +196,7 @@ public class AI {
             for (int j = 0; j < grid[i].length; j++) {
                 unsafeCases[i][j] = 0;
                 playersPosition[i][j] = 0;
-                if (grid[i][j] == Grid.CASE_EMPTY)
+                if (grid[i][j] == Grid.CASE_EMPTY || grid[i][j] == Grid.CASE_PU_FASTER || grid[i][j] == Grid.CASE_PU_ADD_BOMB)
                     freeCases[i][j] = 0;
                 else if (grid[i][j] == Grid.CASE_BLOC)
                     freeCases[i][j] = 2;
@@ -204,38 +206,35 @@ public class AI {
         updateUnsafeCases(bombs);
         updateBlocNearbyCases();
         updatePlayersPosition(players);
-        //afficher("updateBlocksCases");
     }
 
     private void updateBlocNearbyCases() {
         for (int i = 0; i < freeCases.length; i++)
-            for (int j = 0; j < freeCases[i].length; j++) {
+            for (int j = 0; j < freeCases[i].length; j++)
                 if (blocNearby(j, i) && freeCases[i][j] == 0)
                     freeCases[i][j] = 3;
-            }
     }
 
     private void updatePlayersPosition(ArrayList<Player> players) {
-        for (Player player : players)
-            playersPosition[player.getRoundY()][player.getRoundX()] = 5;
+        for (Player player : players) {
+            int y = player.getRoundY(),
+                    x = player.getRoundX();
+            if (player.isPlayerAlive())
+                playersPosition[y][x] = playersPosition[player.getRoundY()][player.getRoundX()] + 1;
+        }
     }
 
-    public void afficher(String string) {
-        String s = "";
-        for (int i = 0; i < freeCases.length; i++) {
-            for (int j = 0; j < freeCases[i].length; j++)
-                s += freeCases[i][j];
-            s += "\n";
-        }
-        Log.i(TAG, string + " afficher: freeCases\n" + s);
+    private int[][] updatePlayersPositionForSpecificPlayer(int x, int y) {
+        int[][] tab = copy(playersPosition);
+        tab[y][x] = tab[y][x] - 1;
 
-        /*s = "";
-        for (int i = 0; i < unsafeCases.length; i++) {
-            for (int j = 0; j < unsafeCases[i].length; j++)
-                s += unsafeCases[i][j];
-            s += "\n";
-        }
-        Log.i(TAG, "afficher: unsafeCases\n" + s);*/
+        // toutes les cases où il y a au moins un joueur
+        for (int i = 0; i < tab.length; i++)
+            for (int j = 0; j < tab[i].length; j++)
+                if (tab[i][j] >= 1)
+                    tab[i][j] = 9;
+
+        return tab;
     }
 
     public void updateUnsafeCases(ArrayList<Bomb> bombs) {
@@ -280,5 +279,51 @@ public class AI {
             }
     }
 
+    public int directionToClosestEnnemy(int x, int y) {
+        int[][] tab = updatePlayersPositionForSpecificPlayer(x, y);
 
+        int xClosest = tab[0].length - 1,
+                yClosest = tab.length - 1;
+
+        for (int i = 0; i < tab.length; i++)
+            for (int j = 0; j < tab[i].length; j++) {
+                if (tab[i][j] == 9) {
+                    int diffY = i - y,
+                            diffX = j - x;
+
+                    if (Math.abs(diffY) + Math.abs(diffX)
+                            < Math.abs(yClosest) + Math.abs(xClosest)) {
+                        yClosest = diffY;
+                        xClosest = diffX;
+                    }
+                }
+            }
+
+        if (x % 2 == 0 && y % 2 != 0)
+            return yClosest < 0 ? Direction.TOP : Direction.BOTTOM;
+        else if (x % 2 != 0 && y % 2 == 0)
+            return xClosest < 0 ? Direction.LEFT : Direction.RIGHT;
+        else
+            return xClosest < 0 ? Direction.LEFT : Direction.RIGHT;
+    }
+
+    public void afficher(int[][] tab) {
+        String s = "";
+        for (int i = 0; i < tab.length; i++) {
+            for (int j = 0; j < tab[i].length; j++)
+                s += tab[i][j];
+            s += "\n";
+        }
+        Log.i(TAG, " afficher: playersPosition \n" + s);
+    }
+
+    public int[][] copy(int[][] original) {
+        int[][] copy = new int[original.length][original[0].length];
+
+        for (int i = 0; i < playersPosition.length; i++)
+            for (int j = 0; j < playersPosition[i].length; j++)
+                copy[i][j] = original[i][j];
+
+        return copy;
+    }
 }

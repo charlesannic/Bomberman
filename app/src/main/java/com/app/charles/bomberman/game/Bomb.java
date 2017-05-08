@@ -26,18 +26,23 @@ public class Bomb {
     private long begin;
     private double secondsCount;
     private boolean isStopped;
+    private boolean isPBomb;
 
     private ImageView v;
     private int xPosition;
     private int yPosition;
     private int size;
 
-    public Bomb(Context context, int xPosition, int yPosition, int size, int power) {
+    public Bomb(Context context, int xPosition, int yPosition, int size, int power, boolean isPBomb) {
         this.mContext = context;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.size = size;
-        this.power = power;
+        this.isPBomb = isPBomb;
+        if(isPBomb)
+            this.power = Integer.MAX_VALUE;
+        else
+            this.power = power;
 
         isStopped = false;
         begin = System.currentTimeMillis();
@@ -121,5 +126,9 @@ public class Bomb {
 
     public void setBombStatus(int bombStatus) {
         this.bombStatus = bombStatus;
+    }
+
+    public boolean isPBomb() {
+        return isPBomb;
     }
 }

@@ -3,7 +3,6 @@ package com.app.charles.bomberman.views;
 import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,8 +10,6 @@ import android.widget.FrameLayout;
 
 import com.app.charles.bomberman.R;
 import com.app.charles.bomberman.java.Direction;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by Charles on 08-Feb-17.
@@ -67,7 +64,7 @@ public class JoyStick extends FrameLayout implements View.OnTouchListener {
 
         } else {
             if (offsetY > 0)
-                return new Direction(offset, Direction.B0TT0M);
+                return new Direction(offset, Direction.BOTTOM);
             else
                 return new Direction(offset, Direction.TOP);
         }

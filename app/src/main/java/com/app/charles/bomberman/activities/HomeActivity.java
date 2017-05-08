@@ -24,7 +24,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     private CoordinatorLayout mContent;
     private View mShadow;
-    private Button mPlay;
+    private Button mEasy,
+            mNormal,
+            mHard;
 
     private LinearLayout mBottomSheet;
     private BottomSheetBehavior mBottomSheetBehavior;
@@ -43,7 +45,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
         mContent = (CoordinatorLayout) findViewById(R.id.main_content);
         mShadow = findViewById(R.id.shadow);
-        mPlay = (Button) findViewById(R.id.play);
+        mEasy = (Button) findViewById(R.id.easy);
+        mNormal = (Button) findViewById(R.id.normal);
+        mHard = (Button) findViewById(R.id.hard);
 
         mBottomSheet = (LinearLayout) findViewById(R.id.bottom_sheet);
         mExpandView = (ImageView) findViewById(R.id.ic_expand);
@@ -59,7 +63,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     mShadow.setVisibility(View.GONE);
-                    if(mustRestart) {
+                    if (mustRestart) {
                         recreate();
                         mustRestart = false;
                     }
@@ -82,7 +86,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        mPlay.setOnClickListener(this);
+        mEasy.setOnClickListener(this);
+        mNormal.setOnClickListener(this);
+        mHard.setOnClickListener(this);
         mShadow.setOnClickListener(this);
         mExpandView.setOnClickListener(this);
         mPreferences.setListener(this);
@@ -90,7 +96,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if(mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED)
+        if (mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED)
             super.onBackPressed();
         else
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -98,9 +104,19 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if(v==mPlay)
-            startActivity(new Intent(this, GameActivity.class));
-        if (v == mShadow)
+        if (v == mEasy) {
+            Intent intent = new Intent(this, GameActivity.class);
+            intent.putExtra("difficulty", 0);
+            startActivity(intent);
+        } else if (v == mNormal) {
+            Intent intent = new Intent(this, GameActivity.class);
+            intent.putExtra("difficulty", 1);
+            startActivity(intent);
+        } else if (v == mHard) {
+            Intent intent = new Intent(this, GameActivity.class);
+            intent.putExtra("difficulty", 2);
+            startActivity(intent);
+        } else if (v == mShadow)
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         else if (v == mExpandView)
             mBottomSheetBehavior.setState(mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED ?

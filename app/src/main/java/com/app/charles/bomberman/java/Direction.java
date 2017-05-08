@@ -10,7 +10,7 @@ public class Direction {
     public static final int LEFT = 1;
     public static final int TOP = 2;
     public static final int RIGHT = 3;
-    public static final int B0TT0M = 4;
+    public static final int BOTTOM = 4;
 
     private float offset;
     private int direction;

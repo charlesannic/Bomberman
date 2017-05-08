@@ -23,25 +23,42 @@ import com.app.charles.bomberman.game.Bot;
 import com.app.charles.bomberman.game.Grid;
 import com.app.charles.bomberman.game.Player;
 import com.app.charles.bomberman.java.Direction;
+import com.app.charles.bomberman.threads.CountdownThread;
+import com.app.charles.bomberman.threads.PlayerThread;
+import com.app.charles.bomberman.threads.TimeThread;
 import com.app.charles.bomberman.utils.Utils;
 import com.app.charles.bomberman.views.JoyStick;
 import com.app.charles.bomberman.views.Preferences;
+
+import java.util.ArrayList;
 
 import static android.view.View.VISIBLE;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "GameActivity";
-    private static final int SPEED = 20;
 
-    private boolean stopTimer = true;
+    private Thread countdownThread,
+            timeThread,
+            playerThread;
+    private ArrayList<Thread> botsThread = new ArrayList<>();
+
+    private Boolean stopTimer = true;
     private long previousBackPressed;
-    private long countdown;
+    private static Integer scorePlayer1,
+            scorePlayer2,
+            scorePlayer3,
+            scorePlayer4;
+    private int difficulty;
 
-    private static Grid mGrid;
+    private Grid mGrid;
 
-    private CoordinatorLayout mContent;
-    private TextView mTime;
+    private RelativeLayout mContent;
+    private TextView mTime,
+            mScorePlayer1,
+            mScorePlayer2,
+            mScorePlayer3,
+            mScorePlayer4;
     private FloatingActionButton mPoseBomb;
     private JoyStick mJoyStick;
 
@@ -58,12 +75,32 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         else
             setContentView(R.layout.activity_game);
 
+        if (scorePlayer1 == null)
+            scorePlayer1 = 0;
+        if (scorePlayer2 == null)
+            scorePlayer2 = 0;
+        if (scorePlayer3 == null)
+            scorePlayer3 = 0;
+        if (scorePlayer4 == null)
+            scorePlayer4 = 0;
+
+        Toast.makeText(this, String.valueOf(getIntent().getIntExtra("difficulty", 4)), Toast.LENGTH_LONG).show();
+        difficulty = getIntent().getIntExtra("difficulty", 1);
+
         mGrid = new Grid(this,
                 (GridLayout) findViewById(R.id.grid),
-                (RelativeLayout) findViewById(R.id.objects_container));
+                (RelativeLayout) findViewById(R.id.objects_container),
+                difficulty);
 
-        mContent = (CoordinatorLayout) findViewById(R.id.main_content);
+        //Log.i(TAG, "onCreate: " + scorePlayer1 + " " + scorePlayer2 + " " + scorePlayer3 + " " + scorePlayer4);
+
+        mContent = (RelativeLayout) findViewById(R.id.main_content);
         mTime = (TextView) findViewById(R.id.time);
+        mScorePlayer1 = (TextView) findViewById(R.id.score_player_1);
+        mScorePlayer2 = (TextView) findViewById(R.id.score_player_2);
+        mScorePlayer3 = (TextView) findViewById(R.id.score_player_3);
+        mScorePlayer4 = (TextView) findViewById(R.id.score_player_4);
+        updateScoreBoard();
         mPoseBomb = (FloatingActionButton) findViewById(R.id.bomb);
         mJoyStick = (JoyStick) findViewById(R.id.joystick);
 
@@ -75,8 +112,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         finish();
                     }
                 });
-
-        mPoseBomb.setOnClickListener(this);
     }
 
     @Override
@@ -85,36 +120,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         stopTimer = false;
         mGrid.resumeBombs();
 
-        new Thread() {
-            public void run() {
-                countdown = System.currentTimeMillis();
-
-                int time = 3 - (int) Math.floor(Utils.calculateSeconds(countdown));
-                while(time >= 0) {
-                    final int seconds = time%60;
-                    final int minutes = time/60;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mTime.setText((minutes < 10 ? "0" : "")
-                                    + String.valueOf(minutes)
-                                    + ":"
-                                    + (seconds < 10 ? "0" : "")
-                                    + String.valueOf(seconds));
-                        }
-                    });
-                    time = 3 - (int) Math.floor(Utils.calculateSeconds(countdown));
-
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                timer();
-            }
-        }.start();
+        countdownThread = new CountdownThread(this, mTime);
+        countdownThread.start();
     }
 
     @Override
@@ -124,138 +131,91 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         mGrid.stopBombs();
     }
 
-    private void timer() {
-        new Thread() {
-            public void run() {
-                countdown = System.currentTimeMillis();
+    public void threads() {
+        mPoseBomb.setOnClickListener(this);
 
-                int time = 120 - (int) Math.floor(Utils.calculateSeconds(countdown));
-                while(time >= 0) {
-                    final int seconds = time%60;
-                    final int minutes = time/60;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mTime.setText((minutes < 10 ? "0" : "")
-                                    + String.valueOf(minutes)
-                                    + ":"
-                                    + (seconds < 10 ? "0" : "")
-                                    + String.valueOf(seconds));
-                        }
-                    });
-                    time = 120 - (int) Math.floor(Utils.calculateSeconds(countdown));
+        timeThread = new TimeThread(this, mTime, mGrid, difficulty);
+        timeThread.start();
 
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }.start();
+        playerThread = new PlayerThread(this, mGrid.getPlayer(), mGrid, mJoyStick);
+        playerThread.start();
 
-        new Thread() {
-            public void run() {
-                while (!stopTimer && mGrid.getPlayer().isPlayerAlive()) {
-                    //Log.i(TAG, "run: 1");
-                    try {
-                        runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                if (isGameOver()) {
-                                    finish();
-                                }
-
-                                Direction direction = mJoyStick.getDirection();
-                                //Log.i(TAG, "run: " + direction.getDirection() + " " + direction.getOffset());
-                                if (direction.getDirection() != Direction.STOP && mGrid.getPlayerView() != null) {
-                                    if (direction.getDirection() == Direction.LEFT)
-                                        mGrid.moveLeft(mGrid.getPlayer(), SPEED * (-direction.getOffset()));
-                                    else if (direction.getDirection() == Direction.RIGHT)
-                                        mGrid.moveRight(mGrid.getPlayer(), SPEED * direction.getOffset());
-                                    else if (direction.getDirection() == Direction.TOP)
-                                        mGrid.moveTop(mGrid.getPlayer(), SPEED * (-direction.getOffset()));
-                                    else if (direction.getDirection() == Direction.B0TT0M)
-                                        mGrid.moveBottom(mGrid.getPlayer(), SPEED * direction.getOffset());
-                                }
-
-                                mGrid.checkBombs();
-                            }
-                        });
-                        Thread.sleep(30);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                mPoseBomb.setOnClickListener(null);
-            }
-        }.start();
-
-        for(final Bot bot : mGrid.getBots()) {
-            new Thread() {
-                public void run() {
-                    while (!stopTimer/* && bot.isPlayerAlive()*/) {
-
-                        runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                mGrid.getAi().whereIGo(bot);
-
-                                Direction direction = bot.getDirection();
-
-                                if (direction.getDirection() != Direction.STOP && bot.getSize() > 0) {
-                                    if(direction.isPoseBomb())
-                                        mGrid.poseBomb(bot);
-                                    else if (direction.getDirection() == Direction.LEFT)
-                                        mGrid.moveLeft(bot, SPEED * (-direction.getOffset()));
-                                    else if (direction.getDirection() == Direction.RIGHT)
-                                        mGrid.moveRight(bot, SPEED * direction.getOffset());
-                                    else if (direction.getDirection() == Direction.TOP)
-                                        mGrid.moveTop(bot, SPEED * (-direction.getOffset()));
-                                    else if (direction.getDirection() == Direction.B0TT0M)
-                                        mGrid.moveBottom(bot, SPEED * direction.getOffset());
-                                }
-                            }
-                        });
-
-                        try {
-
-                            Thread.sleep(30);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }.start();
+        for (final Bot bot : mGrid.getBots()) {
+            Thread botThread = new PlayerThread(this, bot, mGrid, mJoyStick);
+            botThread.start();
+            botsThread.add(botThread);
         }
     }
 
-    private boolean isGameOver() {
+    public boolean isGameOver() {
+        return nbPlayersAlive() < 2;
+    }
+
+    private int nbPlayersAlive() {
         int nbAlives = 0;
 
-        for(Player p : mGrid.getAllPlayers())
-            if(p.isPlayerAlive())
+        String s = "";
+        for (Player p : mGrid.getAllPlayers())
+            if (p.isPlayerAlive()) {
+                s += String.valueOf(p.getId()) + " ";
                 nbAlives++;
+            }
+        Log.i(TAG, "nbPlayersAlive: " + s);
 
-        return nbAlives < 2;
+        return nbAlives;
+    }
+
+    public void changeScoreBoard() {
+        for (Player player : mGrid.getAllPlayers()) {
+            if (player.isPlayerAlive())
+                switch (player.getId()) {
+                    case 1:
+                        Toast.makeText(this, "Le vainceur est 1", Toast.LENGTH_LONG).show();
+                        scorePlayer1++;
+                        break;
+                    case 2:
+                        Toast.makeText(this, "Le vainceur est 2", Toast.LENGTH_LONG).show();
+                        scorePlayer2++;
+                        break;
+                    case 3:
+                        Toast.makeText(this, "Le vainceur est 3", Toast.LENGTH_LONG).show();
+                        scorePlayer3++;
+                        break;
+                    case 4:
+                        Toast.makeText(this, "Le vainceur est 4", Toast.LENGTH_LONG).show();
+                        scorePlayer4++;
+                        break;
+                }
+        }
+
+        updateScoreBoard();
+    }
+
+    public void updateScoreBoard() {
+        //Log.i(TAG, "updateScoreBoard: " + scorePlayer1 + " " + scorePlayer2 + " " + scorePlayer3 + " " + scorePlayer4);
+        mScorePlayer1.setText(String.valueOf(scorePlayer1));
+        mScorePlayer2.setText(String.valueOf(scorePlayer2));
+        mScorePlayer3.setText(String.valueOf(scorePlayer3));
+        mScorePlayer4.setText(String.valueOf(scorePlayer4));
     }
 
     @Override
     public void onBackPressed() {
-            if(Utils.calculateSeconds(previousBackPressed) > 2.5) {
-                previousBackPressed = System.currentTimeMillis();
-                mSnackbarExit.show();
-                //Toast.makeText(this, "Press back again", Toast.LENGTH_SHORT).show();
-            } else
-                super.onBackPressed();
+        if (Utils.calculateSeconds(previousBackPressed) > 2.5) {
+            previousBackPressed = System.currentTimeMillis();
+            mSnackbarExit.show();
+            //Toast.makeText(this, "Press back again", Toast.LENGTH_SHORT).show();
+        } else
+            super.onBackPressed();
     }
 
     @Override
     public void onClick(View v) {
         if (v == mPoseBomb)
             mGrid.poseBomb(mGrid.getPlayer());
+    }
+
+    public Boolean getStopTimer() {
+        return stopTimer;
     }
 }

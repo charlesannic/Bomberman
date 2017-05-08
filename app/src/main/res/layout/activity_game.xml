@@ -1,179 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.app.charles.bomberman.activities.GameActivity">
 
+    <include
+        android:id="@+id/score_board"
+        layout="@layout/score_board" />
+
     <RelativeLayout
+        android:id="@+id/grid_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/score_board"
+        android:background="?android:colorPrimaryDark"
+        android:elevation="6dp">
 
         <GridLayout
-            android:id="@+id/score_board"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:elevation="6dp"
-            android:padding="8dp"
-            android:background="?android:colorPrimaryDark"
-            android:columnCount="10"
-            android:rowCount="1"
-            android:layout_gravity="center" >
-
-            <include
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1"
-                layout="@layout/player1" />
-
-            <TextView
-                android:id="@+id/score_player_1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1"
-                android:gravity="center"
-                android:text="0"/>
-
-            <include
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1"
-                layout="@layout/player2"/>
-
-            <TextView
-                android:id="@+id/score_player_2"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1"
-                android:gravity="center"
-                android:text="0"/>
-
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="2"
-                android:text="00:03"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center" />
-
-            <include
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1"
-                layout="@layout/player3"/>
-
-            <TextView
-                android:id="@+id/score_player_3"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1"
-                android:gravity="center"
-                android:text="0"/>
-
-            <include
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1"
-                layout="@layout/player4"/>
-
-            <TextView
-                android:id="@+id/score_player_4"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1"
-                android:gravity="center"
-                android:text="0"/>
-
-        </GridLayout>
-
-        <RelativeLayout
-            android:id="@+id/grid_container"
-            android:layout_below="@id/score_board"
+            android:id="@+id/grid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:background="?android:colorPrimaryDark"
-            android:elevation="6dp">
+            android:columnCount="13"
+            android:rowCount="11" />
 
-            <GridLayout
-                android:id="@+id/grid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:background="?android:colorPrimaryDark"
-                android:columnCount="13"
-                android:rowCount="11" />
-
-            <RelativeLayout
-                android:id="@+id/objects_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true" />
-
-        </RelativeLayout>
-
-        <GridLayout
+        <RelativeLayout
+            android:id="@+id/objects_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/grid_container"
-            android:columnCount="2">
-
-            <com.app.charles.bomberman.views.JoyStick
-                android:id="@+id/joystick"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1" />
-
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_columnWeight="1">
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/bomb"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="center"
-                    android:clickable="true"/>
-
-            </FrameLayout>
-        </GridLayout>
-
-        <!--<View
-            android:id="@+id/shadow"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="0"
-            android:background="@color/shadow"
-            android:elevation="6dp"
-            android:visibility="gone" />-->
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true" />
 
     </RelativeLayout>
 
-    <!--<LinearLayout
-        android:id="@+id/bottom_sheet"
+    <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:behavior_peekHeight="44dp"
-        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+        android:layout_height="match_parent"
+        android:layout_below="@id/grid_container"
+        android:columnCount="2">
 
-        <ImageView
-            android:id="@+id/ic_expand"
-            android:layout_width="match_parent"
-            android:layout_height="24dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:contentDescription="Expand settings button"/>
+        <com.app.charles.bomberman.views.JoyStick
+            android:id="@+id/joystick"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_columnWeight="1" />
 
-        <com.app.charles.bomberman.views.Preferences
-            android:id="@+id/preferences"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_columnWeight="1">
 
-    </LinearLayout>-->
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/bomb"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:clickable="true" />
 
-</android.support.design.widget.CoordinatorLayout>
+        </FrameLayout>
+    </GridLayout>
+
+</RelativeLayout>
+
+

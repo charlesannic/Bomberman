@@ -38,11 +38,17 @@ public class Grid {
             CASE_WALL = 1,
             CASE_BLOC = 2,
             CASE_PU_FASTER = 5,
-            CASE_PU_ADD_BOMB = 6;
+            CASE_PU_ADD_BOMB = 6,
+            CASE_PU_POWER = 7,
+            CASE_PU_P_BOMB = 8;
 
+    private final int GRID_COLUMNS_EASY = 9,
+            GRID_ROWS_EASY = 7,
+            GRID_COLUMNS_NORMAL = 11,
+            GRID_ROWS_NORMAL = 7,
+            GRID_COLUMNS_HARD = 13,
+            GRID_ROWS_HARD = 9;
 
-    private final int GRID_COLUMNS = 13,
-            GRID_ROWS = 11;
     private int grid[][];
             /*{{0, 0, 2, 2, 0, 2, 2, 0, 2, 0, 0},
                     {0, 1, 0, 1, 2, 1, 2, 1, 2, 1, 2},
@@ -58,14 +64,35 @@ public class Grid {
     private GridLayout gridLayout;
     private RelativeLayout objectsContainer;
 
+    private int gridColumns = GRID_COLUMNS_NORMAL,
+            gridRows = GRID_ROWS_NORMAL;
+
     private Player player;
     private ArrayList<Bot> bots;
     private AI ai;
 
-    public Grid(Context context, GridLayout gridL, RelativeLayout mObjectsContainer) {
+    public Grid(Context context, GridLayout gridL, RelativeLayout mObjectsContainer, final int difficulty) {
         this.context = context;
         this.gridLayout = gridL;
         this.objectsContainer = mObjectsContainer;
+
+        switch (difficulty) {
+            case 0:
+                gridColumns = GRID_COLUMNS_EASY;
+                gridRows = GRID_ROWS_EASY;
+                break;
+            case 1:
+                gridColumns = GRID_COLUMNS_NORMAL;
+                gridRows = GRID_ROWS_NORMAL;
+                break;
+            case 2:
+                gridColumns = GRID_COLUMNS_HARD;
+                gridRows = GRID_ROWS_HARD;
+                break;
+        }
+
+        gridLayout.setColumnCount(gridColumns);
+        gridLayout.setRowCount(gridRows);
 
         generateGrid();
 
@@ -73,35 +100,38 @@ public class Grid {
 
         bots = new ArrayList<>();
         bots.add(new Bot(this.context, 2));
-        bots.add(new Bot(this.context, 3));
-        bots.add(new Bot(this.context, 4));
+        if (difficulty >= 1) {
+            bots.add(new Bot(this.context, 3));
+            if (difficulty >= 2)
+                bots.add(new Bot(this.context, 4));
+        }
 
-        ai = new AI(GRID_COLUMNS, GRID_ROWS);
-        ai.updateBlocksCases(grid, player.getBombs(), getAllPlayers());
+        ai = new AI(gridColumns, gridRows);
+        update();
 
         this.gridLayout.post(new Runnable() {
             @Override
             public void run() {
-                setGridItems(gridLayout.getWidth() / GRID_COLUMNS);
+                setGridItems(gridLayout.getWidth() / gridColumns, difficulty);
             }
         });
     }
 
-    private void setGridItems(int itemSize) {
+    private void setGridItems(int itemSize, int difficulty) {
         RelativeLayout.LayoutParams gridParams = (RelativeLayout.LayoutParams) gridLayout.getLayoutParams();
-        gridParams.height = itemSize * GRID_ROWS;
-        gridParams.width = itemSize * GRID_COLUMNS;
+        gridParams.height = itemSize * gridRows;
+        gridParams.width = itemSize * gridColumns;
         gridLayout.setLayoutParams(gridParams);
 
         RelativeLayout.LayoutParams objectsContainerParams = (RelativeLayout.LayoutParams) objectsContainer.getLayoutParams();
-        objectsContainerParams.height = itemSize * GRID_ROWS;
-        objectsContainerParams.width = itemSize * GRID_COLUMNS;
+        objectsContainerParams.height = itemSize * gridRows;
+        objectsContainerParams.width = itemSize * gridColumns;
         objectsContainer.setLayoutParams(objectsContainerParams);
 
         gridLayout.removeAllViews();
 
-        for (int i = 0; i < GRID_ROWS; i++) {
-            for (int j = 0; j < GRID_COLUMNS; j++) {
+        for (int i = 0; i < gridRows; i++) {
+            for (int j = 0; j < gridColumns; j++) {
                 LayoutInflater inflater = LayoutInflater.from(context);
                 View item = inflater.inflate(R.layout.item_grid_0, null, false);
                 switch (grid[i][j]) {
@@ -123,19 +153,28 @@ public class Grid {
         }
 
         player.setViewPosition(gridLayout.getX(), gridLayout.getY());
-        bots.get(0).setViewPosition(gridLayout.getX() + (GRID_COLUMNS - 1) * itemSize, gridLayout.getY());
-        bots.get(1).setViewPosition(gridLayout.getX() + (GRID_COLUMNS - 1) * itemSize, gridLayout.getY() + (GRID_ROWS - 1) * itemSize);
-        bots.get(2).setViewPosition(gridLayout.getX(), gridLayout.getY() + (GRID_ROWS - 1) * itemSize);
+        bots.get(0).setViewPosition(gridLayout.getX() + (gridColumns - 1) * itemSize, gridLayout.getY() + (gridRows - 1) * itemSize);
+        if (difficulty >= 1) {
+            bots.get(1).setViewPosition(gridLayout.getX() + (gridColumns - 1) * itemSize, gridLayout.getY());
+            if (difficulty >= 2)
+                bots.get(2).setViewPosition(gridLayout.getX(), gridLayout.getY() + (gridRows - 1) * itemSize);
+        }
 
         objectsContainer.addView(player.getView());
         objectsContainer.addView(bots.get(0).getView());
-        objectsContainer.addView(bots.get(1).getView());
-        objectsContainer.addView(bots.get(2).getView());
+        if (difficulty >= 1) {
+            objectsContainer.addView(bots.get(1).getView());
+            if (difficulty >= 2)
+                objectsContainer.addView(bots.get(2).getView());
+        }
 
         player.setView(itemSize);
         bots.get(0).setView(itemSize);
-        bots.get(1).setView(itemSize);
-        bots.get(2).setView(itemSize);
+        if (difficulty >= 1) {
+            bots.get(1).setView(itemSize);
+            if (difficulty >= 2)
+                bots.get(2).setView(itemSize);
+        }
 
     }
 
@@ -155,12 +194,12 @@ public class Grid {
     }
 
     private void generateGrid() {
-        grid = new int[GRID_ROWS][GRID_COLUMNS];
+        grid = new int[gridRows][gridColumns];
 
         Random randomGenerator = new Random();
 
-        for (int i = 0; i < GRID_ROWS; i++)
-            for (int j = 0; j < GRID_COLUMNS; j++) {
+        for (int i = 0; i < gridRows; i++)
+            for (int j = 0; j < gridColumns; j++) {
                 if (isWall(i, j))
                     grid[i][j] = CASE_WALL;
                 else if (isPlayerSpace(i, j) || randomGenerator.nextInt(100) % 10 == 0)
@@ -176,11 +215,11 @@ public class Grid {
     }
 
     private boolean isPlayerSpace(int i, int j) {
-        return ((j == 0 || j == GRID_COLUMNS - 1)
-                && (i <= 2 || i >= GRID_ROWS - 3))
+        return ((j == 0 || j == gridColumns - 1)
+                && (i <= 2 || i >= gridRows - 3))
 
-                || ((i == 0 || i == GRID_ROWS - 1)
-                && (j <= 2 || j >= GRID_COLUMNS - 3));
+                || ((i == 0 || i == gridRows - 1)
+                && (j <= 2 || j >= gridColumns - 3));
     }
 
     public void moveLeft(Player p, float distance) {
@@ -196,9 +235,14 @@ public class Grid {
             int roundX = (int) Math.floor(indexX);
             int roundY = Math.round(indexY);
 
-            View caseOnLeft = gridLayout.getChildAt(roundX + GRID_COLUMNS * roundY);
+            View caseOnLeft = gridLayout.getChildAt(roundX + gridColumns * roundY);
 
-            if (grid[roundY][roundX] != CASE_EMPTY && grid[roundY][roundX] != Bomb.PLAYER_STILL_ON_BOMB)
+            if (grid[roundY][roundX] != CASE_EMPTY
+                    && grid[roundY][roundX] != CASE_PU_FASTER
+                    && grid[roundY][roundX] != CASE_PU_ADD_BOMB
+                    && grid[roundY][roundX] != CASE_PU_POWER
+                    && grid[roundY][roundX] != CASE_PU_P_BOMB
+                    && grid[roundY][roundX] != Bomb.PLAYER_STILL_ON_BOMB)
                 x = caseOnLeft.getX() + caseOnLeft.getWidth();
             else {
                 float diffY = caseOnLeft.getY() - y;
@@ -217,16 +261,26 @@ public class Grid {
                     }
                 }
             }
+
+            if (grid[roundY][roundX] == CASE_PU_FASTER
+                    || grid[roundY][roundX] == CASE_PU_ADD_BOMB
+                    || grid[roundY][roundX] == CASE_PU_POWER
+                    || grid[roundY][roundX] == CASE_PU_P_BOMB)
+                takePowerUp(p, roundX, roundY);
         }
 
         animateView(p.getView(), x, y, 0);
+    }
+
+    public synchronized void update() {
+        ai.updateBlocksCases(grid.clone(), getAllBombs(), getAllPlayers());
     }
 
     public void moveRight(Player p, float distance) {
         float x = p.getX() + distance;
         float y = p.getY();
 
-        if (x > gridLayout.getWidth() - p.getSize())
+        if (x >= gridLayout.getWidth() - p.getSize())
             x = gridLayout.getWidth() - p.getSize();
         else {
             float indexX = x / p.getSize();
@@ -235,9 +289,15 @@ public class Grid {
             int roundX = (int) Math.floor(indexX);
             int roundY = Math.round(indexY);
 
-            View caseOnRight = gridLayout.getChildAt(roundX + 1 + GRID_COLUMNS * roundY);
+            View caseOnRight = gridLayout.getChildAt(roundX + 1 + gridColumns * roundY);
 
-            if (grid[roundY][roundX + 1] != CASE_EMPTY && grid[roundY][roundX + 1] != Bomb.PLAYER_STILL_ON_BOMB)
+            Log.i(TAG, "moveRight: " + indexX + "=" + x + "/" + p.getSize() + "\t" + roundX);
+            if (grid[roundY][roundX + 1] != CASE_EMPTY
+                    && grid[roundY][roundX + 1] != CASE_PU_FASTER
+                    && grid[roundY][roundX + 1] != CASE_PU_ADD_BOMB
+                    && grid[roundY][roundX + 1] != CASE_PU_POWER
+                    && grid[roundY][roundX + 1] != CASE_PU_P_BOMB
+                    && grid[roundY][roundX + 1] != Bomb.PLAYER_STILL_ON_BOMB)
                 x = caseOnRight.getX() - caseOnRight.getWidth();
             else {
                 float diffY = caseOnRight.getY() - y;
@@ -256,6 +316,12 @@ public class Grid {
                     }
                 }
             }
+
+            if (grid[roundY][roundX + 1] == CASE_PU_FASTER
+                    || grid[roundY][roundX + 1] == CASE_PU_ADD_BOMB
+                    || grid[roundY][roundX + 1] == CASE_PU_POWER
+                    || grid[roundY][roundX + 1] == CASE_PU_P_BOMB)
+                takePowerUp(p, roundX + 1, roundY);
         }
 
         animateView(p.getView(), x, y, 0);
@@ -274,12 +340,17 @@ public class Grid {
             int roundX = Math.round(indexX);
             int roundY = (int) Math.floor(indexY);
 
-            View caseOnTop = gridLayout.getChildAt(roundX + GRID_COLUMNS * roundY);
+            View caseOnTop = gridLayout.getChildAt(roundX + gridColumns * roundY);
 
-            if (grid[roundY][roundX] != CASE_EMPTY && grid[roundY][roundX] != Bomb.PLAYER_STILL_ON_BOMB)
+            if (grid[roundY][roundX] != CASE_EMPTY
+                    && grid[roundY][roundX] != CASE_PU_FASTER
+                    && grid[roundY][roundX] != CASE_PU_ADD_BOMB
+                    && grid[roundY][roundX] != CASE_PU_POWER
+                    && grid[roundY][roundX] != CASE_PU_P_BOMB
+                    && grid[roundY][roundX] != Bomb.PLAYER_STILL_ON_BOMB)
                 y = caseOnTop.getY() + caseOnTop.getHeight();
             else {
-                Log.i(TAG, "moveTop: " + roundX + " " + GRID_COLUMNS + " " + roundY);
+                Log.i(TAG, "moveTop: " + roundX + " " + gridColumns + " " + roundY);
                 float diffX = caseOnTop.getX() - x;
                 if (diffX != 0) {
                     if (Math.abs(diffX) > Math.abs(distance)) {
@@ -296,6 +367,12 @@ public class Grid {
                     }
                 }
             }
+
+            if (grid[roundY][roundX] == CASE_PU_FASTER
+                    || grid[roundY][roundX] == CASE_PU_ADD_BOMB
+                    || grid[roundY][roundX] == CASE_PU_POWER
+                    || grid[roundY][roundX] == CASE_PU_P_BOMB)
+                takePowerUp(p, roundX, roundY);
         }
 
         animateView(p.getView(), x, y, 0);
@@ -305,7 +382,7 @@ public class Grid {
         float y = p.getY() + distance,
                 x = p.getX();
 
-        if (y > gridLayout.getHeight() - p.getSize())
+        if (y >= gridLayout.getHeight() - p.getSize())
             y = gridLayout.getHeight() - p.getSize();
         else {
             float indexX = x / p.getSize();
@@ -314,11 +391,14 @@ public class Grid {
             int roundX = Math.round(indexX);
             int roundY = (int) Math.floor(indexY);
 
-            View caseOnBottom = gridLayout.getChildAt(roundX + GRID_COLUMNS * (roundY + 1));
+            View caseOnBottom = gridLayout.getChildAt(roundX + gridColumns * (roundY + 1));
 
-            //caseOnBottom.setBackgroundColor(Color.GREEN);
-
-            if (grid[roundY + 1][roundX] != CASE_EMPTY && grid[roundY + 1][roundX] != Bomb.PLAYER_STILL_ON_BOMB)
+            if (grid[roundY + 1][roundX] != CASE_EMPTY
+                    && grid[roundY + 1][roundX] != CASE_PU_FASTER
+                    && grid[roundY + 1][roundX] != CASE_PU_ADD_BOMB
+                    && grid[roundY + 1][roundX] != CASE_PU_POWER
+                    && grid[roundY + 1][roundX] != CASE_PU_P_BOMB
+                    && grid[roundY + 1][roundX] != Bomb.PLAYER_STILL_ON_BOMB)
                 y = caseOnBottom.getY() - caseOnBottom.getHeight();
             else {
                 float diffX = caseOnBottom.getX() - x;
@@ -337,6 +417,12 @@ public class Grid {
                     }
                 }
             }
+
+            if (grid[roundY + 1][roundX] == CASE_PU_FASTER
+                    || grid[roundY + 1][roundX] == CASE_PU_ADD_BOMB
+                    || grid[roundY + 1][roundX] == CASE_PU_POWER
+                    || grid[roundY + 1][roundX] == CASE_PU_P_BOMB)
+                takePowerUp(p, roundX, roundY + 1);
         }
 
         animateView(p.getView(), x, y, 0);
@@ -350,26 +436,49 @@ public class Grid {
                 .start();
     }
 
-    public void poseBomb(Player p) {
-        if (p instanceof Bot)
-            ((Bot) p).getDirection().setPoseBomb(false);
-
-        if (p.getBombsCapacity() > p.getBombs().size()) {
-            int roundX = p.getRoundX();
-            int roundY = p.getRoundY();
-            if (grid[roundY][roundX] == CASE_EMPTY) {
-                Bomb bomb = new Bomb(context, roundX * p.getSize(), roundY * p.getSize(), p.getSize(), p.getBombsPower());
-
-                grid[roundY][roundX] = bomb.getBombStatus();
-
-                objectsContainer.addView(bomb.getV(), 0);
-                bomb.setView();
-
-                p.getBombs().add(bomb);
-            }
+    private void takePowerUp(Player p, int x, int y) {
+        switch (grid[y][x]) {
+            case CASE_PU_FASTER:
+                p.increaseSpeed();
+                break;
+            case CASE_PU_ADD_BOMB:
+                p.incrementBombsCapacity();
+                break;
+            case CASE_PU_POWER:
+                p.incrementBombsPower();
+                break;
+            case CASE_PU_P_BOMB:
+                p.setHasPBomb();
+                break;
         }
+        removePowerUp(x, y);
+    }
 
-        ai.updateBlocksCases(grid.clone(), getAllBombs(), getAllPlayers());
+    public void poseBomb(Player p) {
+        if (p.getId() == 2)
+            Log.i(TAG, "poseBomb " + ((Bot) p).getDirection().isPoseBomb() + " " + p.isPlayerAlive());
+
+        if (p.isPlayerAlive()) {
+            if (p instanceof Bot)
+                ((Bot) p).getDirection().setPoseBomb(false);
+
+            if (p.getBombsCapacity() > p.getBombs().size()) {
+                int roundX = p.getRoundX();
+                int roundY = p.getRoundY();
+                if (grid[roundY][roundX] == CASE_EMPTY) {
+                    boolean isPoseBomb = p.hasPBomb() && p.isPBombAvailable();
+                    Bomb bomb = new Bomb(context, roundX * p.getSize(), roundY * p.getSize(), p.getSize(), p.getBombsPower(), isPoseBomb);
+
+                    grid[roundY][roundX] = bomb.getBombStatus();
+
+                    objectsContainer.addView(bomb.getV(), 0);
+                    bomb.setView();
+
+                    p.getBombs().add(bomb);
+                }
+            }
+
+        }
     }
 
     public int findBombAtXY(int x, int y) {
@@ -438,11 +547,29 @@ public class Grid {
     }
 
     public void removeBloc(int x, int y) {
+        double rnd = Math.random();
         // 1/4 de chance d'avoir un powerup sur la case explosée
-        if(Math.random() < 0.25)
-            ;
+        if (rnd < 0.05) {
+            grid[y][x] = CASE_PU_FASTER;
+            gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.ic_pu_faster);
+        } else if (rnd < 0.14) {
+            grid[y][x] = CASE_PU_ADD_BOMB;
+            gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.ic_pu_add_bomb);
+        } else if (rnd < 0.15) {
+            grid[y][x] = CASE_PU_POWER;
+            gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.ic_pu_power);
+        } else if (rnd < 0.4) {
+            grid[y][x] = CASE_PU_P_BOMB;
+            gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.ic_pu_p_bomb);
+        } else {
+            grid[y][x] = 0;
+            gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.item_empty);
+        }
+    }
+
+    public void removePowerUp(int x, int y) {
         grid[y][x] = 0;
-        gridLayout.getChildAt(x + GRID_COLUMNS * y).setBackgroundResource(R.drawable.item_empty);
+        gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.item_empty);
     }
 
     public void showExplosion(View view) {
@@ -452,10 +579,10 @@ public class Grid {
     }
 
     public void performExplosion(int xGrid, int yGrid, int excludedSide, int power) {
-        if (xGrid >= 0 && xGrid < GRID_COLUMNS && yGrid >= 0 && yGrid < GRID_ROWS)
+        if (xGrid >= 0 && xGrid < gridColumns && yGrid >= 0 && yGrid < gridRows)
             if (grid[yGrid][xGrid] == CASE_EMPTY) {
 
-                showExplosion(gridLayout.getChildAt(xGrid + GRID_COLUMNS * yGrid));
+                showExplosion(gridLayout.getChildAt(xGrid + gridColumns * yGrid));
 
                 killPlayers(xGrid, yGrid);
 
@@ -488,19 +615,23 @@ public class Grid {
                             SIDE_TOP,
                             power);
             }
-
-        ai.updateBlocksCases(grid.clone(), getAllBombs(), getAllPlayers());
     }
 
     public void spreadExplosion(int xGrid, int yGrid, int moveX, int moveY, int from, int depth) {
-        if (depth > 0 && xGrid >= 0 && xGrid < GRID_COLUMNS && yGrid >= 0 && yGrid < GRID_ROWS)
+        if (depth > 0 && xGrid >= 0 && xGrid < gridColumns && yGrid >= 0 && yGrid < gridRows)
             switch (grid[yGrid][xGrid]) {
                 case CASE_EMPTY:
-                    showExplosion(gridLayout.getChildAt(xGrid + GRID_COLUMNS * yGrid));
+                    showExplosion(gridLayout.getChildAt(xGrid + gridColumns * yGrid));
 
                     killPlayers(xGrid, yGrid);
 
                     spreadExplosion(xGrid + moveX, yGrid + moveY, moveX, moveY, from, depth - 1);
+                    break;
+                case CASE_PU_FASTER:
+                case CASE_PU_ADD_BOMB:
+                case CASE_PU_POWER:
+                case CASE_PU_P_BOMB:
+                    removePowerUp(xGrid, yGrid);
                     break;
                 case CASE_BLOC:
                     removeBloc(xGrid, yGrid);

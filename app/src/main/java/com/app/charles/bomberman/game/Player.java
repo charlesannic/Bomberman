@@ -8,6 +8,7 @@ import android.widget.RelativeLayout;
 import com.app.charles.bomberman.R;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 
 /**
  * Created by Charles on 10-Feb-17.
@@ -15,16 +16,20 @@ import java.util.ArrayList;
 
 public class Player {
 
+    private int id;
+
     public static final int ALIVE = 0;
     public static final int DEAD = 1;
 
     private Context context;
 
-    private int playerStatus = ALIVE;
+    private int playerStatus;
 
     private ArrayList<Bomb> bombs;
     private int bombsCapacity;
     private int bombsPower;
+    private int speed;
+    private boolean hasPBomb;
 
     private View view;
     private int size;
@@ -32,10 +37,15 @@ public class Player {
     public Player(Context context, int player) {
         this.context = context;
 
+        playerStatus = ALIVE;
+
         bombs = new ArrayList<>();
         bombsCapacity = 1;
-        bombsPower = 3;
+        bombsPower = 1;
+        speed = 0;
+        hasPBomb = false;
 
+        this.id = player;
         LayoutInflater inflater = LayoutInflater.from(this.context);
         switch (player) {
             case 1:
@@ -115,6 +125,14 @@ public class Player {
         return bombsPower;
     }
 
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void increaseSpeed() {
+        speed = speed + 2;
+    }
+
     public void incrementBombsPower() {
         bombsPower++;
     }
@@ -125,5 +143,29 @@ public class Player {
 
     public void killPlayer() {
         this.playerStatus = DEAD;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setHasPBomb() {
+        hasPBomb = true;
+    }
+
+    public boolean hasPBomb() {
+        return hasPBomb;
+    }
+
+    public boolean isPBombAvailable() {
+        for(Bomb bomb : getBombs())
+            if(bomb.isPBomb())
+                return false;
+
+        return true;
     }
 }
