@@ -54,6 +54,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private Grid mGrid;
 
     private RelativeLayout mContent;
+    private LinearLayout mPlayer1,
+            mPlayer2,
+            mPlayer3,
+            mPlayer4;
     private TextView mTime,
             mScorePlayer1,
             mScorePlayer2,
@@ -84,7 +88,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (scorePlayer4 == null)
             scorePlayer4 = 0;
 
-        Toast.makeText(this, String.valueOf(getIntent().getIntExtra("difficulty", 4)), Toast.LENGTH_LONG).show();
         difficulty = getIntent().getIntExtra("difficulty", 1);
 
         mGrid = new Grid(this,
@@ -95,6 +98,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //Log.i(TAG, "onCreate: " + scorePlayer1 + " " + scorePlayer2 + " " + scorePlayer3 + " " + scorePlayer4);
 
         mContent = (RelativeLayout) findViewById(R.id.main_content);
+        mPlayer1 = (LinearLayout) findViewById(R.id.player_1);
+        mPlayer2 = (LinearLayout) findViewById(R.id.player_2);
+        mPlayer3 = (LinearLayout) findViewById(R.id.player_3);
+        mPlayer4 = (LinearLayout) findViewById(R.id.player_4);
+        if(difficulty <= 1) {
+            mPlayer4.setVisibility(View.INVISIBLE);
+            if(difficulty <= 0)
+                mPlayer3.setVisibility(View.INVISIBLE);
+        }
+
         mTime = (TextView) findViewById(R.id.time);
         mScorePlayer1 = (TextView) findViewById(R.id.score_player_1);
         mScorePlayer2 = (TextView) findViewById(R.id.score_player_2);
@@ -137,11 +150,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         timeThread = new TimeThread(this, mTime, mGrid, difficulty);
         timeThread.start();
 
-        playerThread = new PlayerThread(this, mGrid.getPlayer(), mGrid, mJoyStick);
+        playerThread = new PlayerThread(this, mGrid.getPlayer(), mGrid, mJoyStick, mGrid.getPlayerView().getWidth() / 10);
         playerThread.start();
 
         for (final Bot bot : mGrid.getBots()) {
-            Thread botThread = new PlayerThread(this, bot, mGrid, mJoyStick);
+            Thread botThread = new PlayerThread(this, bot, mGrid, mJoyStick, mGrid.getPlayerView().getWidth() / 10);
             botThread.start();
             botsThread.add(botThread);
         }
@@ -170,19 +183,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if (player.isPlayerAlive())
                 switch (player.getId()) {
                     case 1:
-                        Toast.makeText(this, "Le vainceur est 1", Toast.LENGTH_LONG).show();
                         scorePlayer1++;
                         break;
                     case 2:
-                        Toast.makeText(this, "Le vainceur est 2", Toast.LENGTH_LONG).show();
                         scorePlayer2++;
                         break;
                     case 3:
-                        Toast.makeText(this, "Le vainceur est 3", Toast.LENGTH_LONG).show();
                         scorePlayer3++;
                         break;
                     case 4:
-                        Toast.makeText(this, "Le vainceur est 4", Toast.LENGTH_LONG).show();
                         scorePlayer4++;
                         break;
                 }

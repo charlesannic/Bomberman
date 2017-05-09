@@ -106,7 +106,7 @@ public class Grid {
                 bots.add(new Bot(this.context, 4));
         }
 
-        ai = new AI(gridColumns, gridRows);
+        ai = new AI(gridColumns, gridRows, getAllPlayers());
         update();
 
         this.gridLayout.post(new Runnable() {
@@ -273,7 +273,7 @@ public class Grid {
     }
 
     public synchronized void update() {
-        ai.updateBlocksCases(grid.clone(), getAllBombs(), getAllPlayers());
+        ai.updateBlocksCases(grid.clone(), getAllBombs());
     }
 
     public void moveRight(Player p, float distance) {
@@ -291,7 +291,6 @@ public class Grid {
 
             View caseOnRight = gridLayout.getChildAt(roundX + 1 + gridColumns * roundY);
 
-            Log.i(TAG, "moveRight: " + indexX + "=" + x + "/" + p.getSize() + "\t" + roundX);
             if (grid[roundY][roundX + 1] != CASE_EMPTY
                     && grid[roundY][roundX + 1] != CASE_PU_FASTER
                     && grid[roundY][roundX + 1] != CASE_PU_ADD_BOMB
@@ -350,7 +349,6 @@ public class Grid {
                     && grid[roundY][roundX] != Bomb.PLAYER_STILL_ON_BOMB)
                 y = caseOnTop.getY() + caseOnTop.getHeight();
             else {
-                Log.i(TAG, "moveTop: " + roundX + " " + gridColumns + " " + roundY);
                 float diffX = caseOnTop.getX() - x;
                 if (diffX != 0) {
                     if (Math.abs(diffX) > Math.abs(distance)) {
@@ -548,17 +546,17 @@ public class Grid {
 
     public void removeBloc(int x, int y) {
         double rnd = Math.random();
-        // 1/4 de chance d'avoir un powerup sur la case explosée
+        // chances d'avoir tel powerup sur la case explosée
         if (rnd < 0.05) {
             grid[y][x] = CASE_PU_FASTER;
             gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.ic_pu_faster);
-        } else if (rnd < 0.14) {
+        } else if (rnd < 0.10) {
             grid[y][x] = CASE_PU_ADD_BOMB;
             gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.ic_pu_add_bomb);
         } else if (rnd < 0.15) {
             grid[y][x] = CASE_PU_POWER;
             gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.ic_pu_power);
-        } else if (rnd < 0.4) {
+        } else if (rnd < 0.18) {
             grid[y][x] = CASE_PU_P_BOMB;
             gridLayout.getChildAt(x + gridColumns * y).setBackgroundResource(R.drawable.ic_pu_p_bomb);
         } else {

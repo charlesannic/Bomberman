@@ -13,18 +13,18 @@ import com.app.charles.bomberman.views.JoyStick;
 
 public class PlayerThread extends Thread {
 
-    private static final int SPEED = 10;
-
     private GameActivity activity;
     private Player player;
     private Grid grid;
     private JoyStick joyStick;
+    private int speed;
 
-    public PlayerThread(GameActivity activity, Player player, Grid grid, JoyStick joyStick) {
+    public PlayerThread(GameActivity activity, Player player, Grid grid, JoyStick joyStick, int speed) {
         this.activity = activity;
         this.player = player;
         this.grid = grid;
         this.joyStick = joyStick;
+        this.speed = speed;
     }
 
     @Override
@@ -47,13 +47,13 @@ public class PlayerThread extends Thread {
                             if (player instanceof Bot && direction.isPoseBomb())
                                 grid.poseBomb(player);
                             else if (direction.getDirection() == Direction.LEFT)
-                                grid.moveLeft(player, (SPEED + player.getSpeed()) * (-direction.getOffset()));
+                                grid.moveLeft(player, (speed + player.getSpeed()) * (-direction.getOffset()));
                             else if (direction.getDirection() == Direction.RIGHT)
-                                grid.moveRight(player, (SPEED + player.getSpeed()) * direction.getOffset());
+                                grid.moveRight(player, (speed + player.getSpeed()) * direction.getOffset());
                             else if (direction.getDirection() == Direction.TOP)
-                                grid.moveTop(player, (SPEED + player.getSpeed()) * (-direction.getOffset()));
+                                grid.moveTop(player, (speed + player.getSpeed()) * (-direction.getOffset()));
                             else if (direction.getDirection() == Direction.BOTTOM)
-                                grid.moveBottom(player, (SPEED + player.getSpeed()) * direction.getOffset());
+                                grid.moveBottom(player, (speed + player.getSpeed()) * direction.getOffset());
                         }
                     }
                 });
