@@ -11,34 +11,40 @@ import com.app.charles.bomberman.R;
 import com.app.charles.bomberman.utils.Utils;
 
 /**
- * Created by Charles on 07-Feb-17.
+ * Classe gérant les bombes placées sur la grille.
  */
 
+@SuppressWarnings("WeakerAccess")
 public class Bomb {
 
-    public static final int PLAYER_STILL_ON_BOMB = 3;
-    public static final int POSED = 4;
+    // statuts d'une bombe.
+    public static final int PLAYER_STILL_ON_BOMB = 3; // si un joueur est encore dessus alors il peut se déplacer comme sur une case vide.
+    public static final int POSED = 4; // sinon la bombe agit comme un mur.
 
     private Context mContext;
 
-    private int bombStatus = PLAYER_STILL_ON_BOMB,
-            power;
+    // attributs.
+    private int bombStatus = PLAYER_STILL_ON_BOMB, power;
     private long begin;
     private double secondsCount;
     private boolean isStopped;
     private boolean isPBomb;
 
+    // vues et attributs de la vue de la bombe.
     private ImageView v;
     private int xPosition;
     private int yPosition;
     private int size;
 
+    @SuppressWarnings({"ConstantConditions","InflateParams"})
     public Bomb(Context context, int xPosition, int yPosition, int size, int power, boolean isPBomb) {
         this.mContext = context;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.size = size;
         this.isPBomb = isPBomb;
+
+        // s'il s'agit d'un P Bomb, sa puissance est maximale et l'explosion parcourt toute la grille.
         if(isPBomb)
             this.power = Integer.MAX_VALUE;
         else
@@ -48,18 +54,22 @@ public class Bomb {
         begin = System.currentTimeMillis();
         secondsCount = 0;
 
+        // inflation de la vue de la bombe et lancement de l'animation de celle-ci.
         LayoutInflater inflater = LayoutInflater.from(mContext);
         v = (ImageView) inflater.inflate(R.layout.bomb, null, false);
-
-
-        final AnimatedVectorDrawable animatedVectorDrawable = (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.ic_bomb_animated);
+        AnimatedVectorDrawable animatedVectorDrawable = (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.ic_bomb_animated);
         v.setImageDrawable(animatedVectorDrawable);
         animatedVectorDrawable.start();
+
+        // modification de la position de la bombe sur la grille.
         v.setX(this.xPosition);
         v.setY(this.yPosition);
     }
 
-    public void setView() {
+    /**
+     * Modification de la taille de la vue d'une bombe.
+     */
+    public void resizeView() {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
         params.height = size;
         params.width = size;
@@ -70,6 +80,9 @@ public class Bomb {
         return Utils.calculateSeconds(begin) + secondsCount;
     }
 
+    /**
+     * Mise en pause du compte à rebours de la bombe.
+     */
     public void stopTimer() {
         if (!isStopped) {
             secondsCount += Utils.calculateSeconds(begin);
@@ -77,6 +90,9 @@ public class Bomb {
         }
     }
 
+    /**
+     * Reprise du compte à rebours de la bombe.
+     */
     public void resumeTimer() {
         if (isStopped) {
             begin = System.currentTimeMillis();

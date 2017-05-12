@@ -1,66 +1,105 @@
 package com.app.charles.bomberman.threads;
 
-import android.widget.GridLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.app.charles.bomberman.R;
 import com.app.charles.bomberman.activities.GameActivity;
 import com.app.charles.bomberman.game.Grid;
 import com.app.charles.bomberman.utils.Utils;
 
 /**
- * Created by Charles on 05/05/2017.
+ * Thread utilisé pour gérer une partie.
  */
 
 public class TimeThread extends Thread {
 
-    private boolean isGameOver = false;
+    // durée de la partie selon la difficulté du jeu.
+    private static final int DURATION_EASY = 60, DURATION_NORMAL = 90, DURATION_HARD = 120;
+
+    // activité depuis laquelle est appelé le thread.
     private GameActivity activity;
+
+    // vue pour l'affichage du temps.
     private TextView tvTime;
+
+    // grille.
     private Grid grid;
+
+    // attributs.
+    private boolean isGameOver = false;
     private int difficulty;
+    private int gameDuration;
 
     public TimeThread(GameActivity activity, TextView tvTime, Grid grid, int difficulty) {
         this.activity = activity;
         this.tvTime = tvTime;
         this.grid = grid;
         this.difficulty = difficulty;
+
+        switch (difficulty) {
+            case 0:
+                gameDuration = DURATION_EASY;
+                break;
+            case 1:
+                gameDuration = DURATION_NORMAL;
+                break;
+            default:
+                gameDuration = DURATION_HARD;
+                break;
+        }
     }
 
+    /**
+     * Méthode appelée lorsque le thread est démaré.
+     */
     @Override
     public void run() {
-        long countdown = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
+        double time = gameDuration;
 
-        int time = 120 - (int) Math.floor(Utils.calculateSeconds(countdown));
-        while (!activity.getStopTimer() && time >= 0 && !isGameOver) {
-            final int seconds = time % 60;
-            final int minutes = time / 60;
+        while (!activity.gameStoped() && time >= 0 && !isGameOver) {
+            final int seconds = (int)Math.floor(time % 60);
+            final int minutes = (int)Math.floor(time / 60);
+            final int tmpTime = (int)Math.floor(time); // nécessaire car la variable doit être finale pour être utilisée dans le thread principal.
+
+            // sur Android, la modification des vues ne peut se faire que sur le thread principal. la fonction runOnUiThread permet d'exécuter le code sur ce thread principal.
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvTime.setText((minutes < 10 ? "0" : "")
-                            + String.valueOf(minutes)
-                            + ":"
-                            + (seconds < 10 ? "0" : "")
-                            + String.valueOf(seconds));
+                    // màj du temps restant.
+                    tvTime.setText(Utils.formatTime(minutes, seconds));
 
+                    // vérifie si des bombes sur la grille doivent exploser.
                     grid.checkBombs();
 
+                    // lancement du thread de réduction de taille de la grille selon le temps restant.
+                    switch (difficulty) {
+                        case 0:
+                            if(tmpTime <= Math.round((float)(grid.getGridColumns() * grid.getGridRows()) / 2f)) // 2 car 2 nouveaux blocs apparaissent par seconde.
+                                activity.startLastSecondsThread();
+                            break;
+                        case 1:
+                            if(tmpTime <= Math.round((float)(grid.getGridColumns() * grid.getGridRows()) / 3f))
+                                activity.startLastSecondsThread();
+                            break;
+                        case 2:
+                            if(tmpTime <= Math.round((float)(grid.getGridColumns() * grid.getGridRows()) / 4f))
+                                activity.startLastSecondsThread();
+                            break;
+                    }
+
+                    // vérifie si la partie est terminée.
                     if (activity.isGameOver()) {
                         isGameOver = true;
                         activity.changeScoreBoard();
-                        grid = new Grid(activity,
-                                (GridLayout) activity.findViewById(R.id.grid),
-                                (RelativeLayout) activity.findViewById(R.id.objects_container),
-                                difficulty);
                         activity.recreate();
                     }
                 }
             });
-            time = 120 - (int) Math.floor(Utils.calculateSeconds(countdown));
+            // màj du temps calculer.
+            time = gameDuration - (int) Math.floor(Utils.calculateSeconds(startTime));
 
-            grid.update();
+            // màj des informations dont dispose l'IA
+            grid.updateAIInformations();
 
             try {
                 Thread.sleep(30);
@@ -68,5 +107,8 @@ public class TimeThread extends Thread {
                 e.printStackTrace();
             }
         }
+
+        // màj de la durée de la partie. utile si la partie est mise en pause, pour ne pas recommencer depuis le début
+        gameDuration = (int) Math.round(time);
     }
 }

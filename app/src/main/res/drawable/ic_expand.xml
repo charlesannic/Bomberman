@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/arrow_expand" >
+    android:drawable="@drawable/ic_arrow_expand" >
     <target
         android:name="v"
         android:animation="@animator/path_morph_expand" />

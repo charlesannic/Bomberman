@@ -6,15 +6,11 @@
     android:layout_height="match_parent"
     tools:context="com.app.charles.bomberman.activities.GameActivity">
 
-    <include
-        android:id="@+id/score_board"
-        layout="@layout/score_board" />
-
     <RelativeLayout
         android:id="@+id/grid_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/score_board"
+        android:layout_below="@+id/score_board"
         android:background="?android:colorPrimaryDark"
         android:elevation="6dp">
 
@@ -34,6 +30,11 @@
             android:layout_centerHorizontal="true" />
 
     </RelativeLayout>
+
+
+    <include
+        android:id="@+id/score_board"
+        layout="@layout/score_board" />
 
     <GridLayout
         android:layout_width="match_parent"
@@ -61,6 +62,24 @@
 
         </FrameLayout>
     </GridLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:id="@+id/ic_pause"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:contentDescription="Expand settings button" />
+
+    </LinearLayout>
 
 </RelativeLayout>
 

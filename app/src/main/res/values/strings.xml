@@ -2,8 +2,10 @@
     <string name="app_name">Bomberman</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="orientation">orientation</string>
     <string name="inverted_controls">inverted_controls</string>
     <string name="vibrate">vibrate</string>
+    <string name="watch_until_end">watch_until_end</string>
 
     <string name="theme">theme</string>
     <string name="blue">blue</string>

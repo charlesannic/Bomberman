@@ -8,32 +8,38 @@ import android.widget.RelativeLayout;
 import com.app.charles.bomberman.R;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 
 /**
- * Created by Charles on 10-Feb-17.
+ * Classe réprésentant le joueur d'une partie.
  */
 
+@SuppressWarnings({"WeakerAccess", "FieldCanBeLocal"})
 public class Player {
 
+    // identifiant.
     private int id;
 
+    // statut.
     public static final int ALIVE = 0;
     public static final int DEAD = 1;
 
-    private Context context;
-
     private int playerStatus;
 
+    private Context context;
+
+    // attributs d'un joueur.
     private ArrayList<Bomb> bombs;
     private int bombsCapacity;
     private int bombsPower;
     private int speed;
+    private int aditionnalSpeed;
     private boolean hasPBomb;
 
+    // vue et taille d'un joueur
     private View view;
     private int size;
 
+    @SuppressWarnings("InflateParams")
     public Player(Context context, int player) {
         this.context = context;
 
@@ -43,9 +49,12 @@ public class Player {
         bombsCapacity = 1;
         bombsPower = 1;
         speed = 0;
+        aditionnalSpeed = 0;
         hasPBomb = false;
 
         this.id = player;
+
+        // création de la vue du joueur selon son id.
         LayoutInflater inflater = LayoutInflater.from(this.context);
         switch (player) {
             case 1:
@@ -63,6 +72,10 @@ public class Player {
         }
     }
 
+    /**
+     * Modification de la taille de la vue d'un joueur.
+     * @param size taille souhaitée du joueur.
+     */
     public void setView(int size) {
         this.size = size;
 
@@ -126,11 +139,15 @@ public class Player {
     }
 
     public int getSpeed() {
-        return speed;
+        return speed + aditionnalSpeed;
+    }
+
+    public int getAditionnalSpeed() {
+        return aditionnalSpeed / 2;
     }
 
     public void increaseSpeed() {
-        speed = speed + 2;
+        aditionnalSpeed = aditionnalSpeed + 2;
     }
 
     public void incrementBombsPower() {
@@ -162,8 +179,8 @@ public class Player {
     }
 
     public boolean isPBombAvailable() {
-        for(Bomb bomb : getBombs())
-            if(bomb.isPBomb())
+        for (Bomb bomb : getBombs())
+            if (bomb.isPBomb())
                 return false;
 
         return true;

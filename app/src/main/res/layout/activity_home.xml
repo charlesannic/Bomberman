@@ -13,19 +13,28 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:weightSum="2">
+
+            <ImageView
+                android:id="@+id/iv_bomberman"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_weight="1"
+                android:src="@drawable/bomberman_1" />
 
             <Button
                 android:id="@+id/easy"
                 style="?android:borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Easy"
-                android:textSize="28sp" />
+                android:layout_marginTop="20dp"
+                android:text="Facile"
+                android:textSize="22sp" />
 
             <Button
                 android:id="@+id/normal"
@@ -33,15 +42,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Normal"
-                android:textSize="28sp" />
+                android:textSize="22sp" />
 
             <Button
                 android:id="@+id/hard"
                 style="?android:borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hard"
-                android:textSize="28sp" />
+                android:text="Difficile"
+                android:textSize="22sp" />
+
         </LinearLayout>
 
         <View

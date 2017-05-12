@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/score_board"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:layout_gravity="center"
+    android:background="?android:colorPrimaryDark"
+    android:columnCount="5"
+    android:elevation="6dp"
+    android:padding="8dp"
+    android:rowCount="1">
+
+    <LinearLayout
+        android:id="@+id/player_1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_columnWeight="1"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <include
+            layout="@layout/player1"
+            android:layout_width="24dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/score_player_1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_marginLeft="5dp"
+            android:text="0" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/player_2"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_columnWeight="1"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <include
+            layout="@layout/player2"
+            android:layout_width="24dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/score_player_2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_marginLeft="5dp"
+            android:text="0" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_columnWeight="2"
+        android:gravity="center"
+        android:text="00:03"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/player_3"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_columnWeight="1"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <include
+            layout="@layout/player3"
+            android:layout_width="24dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/score_player_3"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_marginLeft="5dp"
+            android:text="0" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/player_4"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_columnWeight="1"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <include
+            layout="@layout/player4"
+            android:layout_width="24dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/score_player_4"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_marginLeft="5dp"
+            android:text="0" />
+    </LinearLayout>
+
+</GridLayout>

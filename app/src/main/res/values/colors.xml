@@ -1,31 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary1">#3F51B5</color>
-    <color name="colorPrimaryDark1">#303F9F</color>
-    <color name="colorAccent1">#FF9100</color>
+    <!-- couleurs des thèmes-->
+    <color name="colorPrimary1">#0079A4</color>
+    <color name="colorPrimaryDark1">#00688A</color>
+    <color name="colorAccent1">#E1795C</color>
 
-    <color name="colorPrimary2">#F44336</color>
-    <color name="colorPrimaryDark2">#D32F2F</color>
-    <color name="colorAccent2">#00B0FF</color>
+    <color name="colorPrimary2">#009975</color>
+    <color name="colorPrimaryDark2">#007D61</color>
+    <color name="colorAccent2">#E7C466</color>
 
-    <color name="colorPrimary3">#009688</color>
-    <color name="colorPrimaryDark3">#00796B</color>
-    <color name="colorAccent3">#FFD600</color>
+    <color name="colorPrimary3">#947167</color>
+    <color name="colorPrimaryDark3">#83655C</color>
+    <color name="colorAccent3">#89C7A8</color>
 
-    <color name="colorPrimary4">#673AB7</color>
-    <color name="colorPrimaryDark4">#512DA8</color>
-    <color name="colorAccent4">#00C853</color>
+    <color name="colorPrimary4">#BD7798</color>
+    <color name="colorPrimaryDark4">#B36288</color>
+    <color name="colorAccent4">#91B9C6</color>
 
+    <!-- couleur des ombres -->
     <color name="shadow">#9000</color>
 
+    <!-- bland avec transparence -->
     <color name="whiteAlpha">#4FFF</color>
 
+    <!-- couleur des explosions -->
     <color name="explosion">#FF6D00</color>
 
-    <color name="white">#FFF</color>
-    <color name="red">#D93801</color>
-    <color name="dark_gray">#444</color>
-    <color name="green">#56A343</color>
-    <color name="pink">#F475A3</color>
+    <!-- couleur des bombes -->
     <color name="bomb">#333</color>
+
+    <!-- couleurs des joueurs -->
+    <color name="white">#F2F2F2</color>
+    <color name="player_1">#E1795C</color>
+    <color name="player_2">#E7C466</color>
+    <color name="player_3">#89C7A8</color>
+    <color name="player_4">#91B9C6</color>
+
 </resources>

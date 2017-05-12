@@ -1,20 +1,22 @@
 package com.app.charles.bomberman.java;
 
 /**
- * Created by Charles on 05-Feb-17.
+ * Classe représentant une direction.
  */
 
 public class Direction {
 
+    // direction possibles.
     public static final int STOP = 0;
     public static final int LEFT = 1;
     public static final int TOP = 2;
     public static final int RIGHT = 3;
     public static final int BOTTOM = 4;
 
-    private float offset;
+    // attribut.
+    private float offset; // vitesse de déplacement.
     private int direction;
-    private boolean poseBomb;
+    private boolean poseBomb; // pose d'une bombe souhaitée.
 
     public Direction(float offset, int direction) {
         this.offset = offset;
@@ -24,10 +26,6 @@ public class Direction {
 
     public float getOffset() {
         return offset;
-    }
-
-    public void setOffset(float offset) {
-        this.offset = offset;
     }
 
     public int getDirection() {

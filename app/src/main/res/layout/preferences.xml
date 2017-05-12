@@ -6,6 +6,21 @@
     android:orientation="vertical">
 
     <Switch
+        android:id="@+id/orientation"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="center_vertical"
+        android:paddingStart="@dimen/activity_vertical_margin"
+        android:paddingEnd="@dimen/activity_vertical_margin"
+        android:text="Jouer en mode paysage" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:alpha="0.12"
+        android:background="#000" />
+
+    <Switch
         android:id="@+id/inverse_controls"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -28,6 +43,21 @@
         android:paddingStart="@dimen/activity_vertical_margin"
         android:paddingEnd="@dimen/activity_vertical_margin"
         android:text="Vibration" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:alpha="0.12"
+        android:background="#000" />
+
+    <Switch
+        android:id="@+id/watch_until_end"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="center_vertical"
+        android:paddingStart="@dimen/activity_vertical_margin"
+        android:paddingEnd="@dimen/activity_vertical_margin"
+        android:text="Regarder la partie jusqu'à la fin" />
 
     <View
         android:layout_width="match_parent"

@@ -4,10 +4,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Animatable;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,46 +15,50 @@ import com.app.charles.bomberman.R;
 import java.util.ArrayList;
 
 /**
- * Created by Charles on 09-Feb-17.
+ * Gère la liste de sélection de thème.
  */
 
-public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.ViewHolder> implements View.OnClickListener {
-
-    private static final String TAG = "CourseAdapter";
+public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.ThemeCircleView> implements View.OnClickListener {
 
     private ArrayList<Integer> mValues = new ArrayList<>();
     private int mSelectedTheme;
 
-    private Context mContext;
     private ThemesAdapterListener listener;
 
     public ThemesAdapter(ThemesAdapterListener listener, Context context, int selectedTheme) {
         this.listener = listener;
-        this.mContext = context;
         this.mSelectedTheme = selectedTheme;
 
+        // obtention des cercles de couleur représentant les thèmes.
         TypedArray drawables = context.getResources().obtainTypedArray(R.array.colors_drawable);
-
         for(int i=0 ; i < 4 ; i++){
             mValues.add(drawables.getResourceId(i, -1));
         }
-
         drawables.recycle();
     }
 
+    /**
+     * Création d'une vue pour chaque item de la liste.
+     */
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ThemeCircleView onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.theme_view, parent, false);
-        return new ViewHolder(view);
+        return new ThemeCircleView(view);
     }
 
+    /**
+     * Modification spécifique de la vue de chaque item de la liste.
+     * @param holder vue.
+     * @param position position dans la liste.
+     */
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ThemeCircleView holder, final int position) {
         holder.item.setBackgroundResource(mValues.get(position));
-        holder.item.setTag(position);
+        holder.item.setTag(position); // le tag nous permettra de différencier les vues dans la liste.
         holder.item.setOnClickListener(this);
 
+        // si l'item est sélection, on anime la transparence du symbole "check" qui apparait sur le cercle de la couleur.
         if(position == mSelectedTheme && holder.isSelected.getVisibility() == View.INVISIBLE) {
             final ValueAnimator anim = ValueAnimator.ofFloat(0, 1);
             anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -89,6 +90,7 @@ public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.ViewHolder
             anim.setDuration(200);
             anim.start();
         }
+        // sinon si le symbole "check" était visible, on le cache en animant sa transparence.
         else if (holder.isSelected.getVisibility() == View.VISIBLE) {
             final ValueAnimator anim = ValueAnimator.ofFloat(1, 0);
             anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -122,30 +124,44 @@ public class ThemesAdapter extends RecyclerView.Adapter<ThemesAdapter.ViewHolder
         }
     }
 
+    /**
+     * Permet d'obtenir le nombre d'items dans la liste.
+     * @return le nombre d'items dans la liste.
+     */
     @Override
     public int getItemCount() {
         return mValues.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    /**
+     * Vue représentant le cercle de chaque thème.
+     */
+    class ThemeCircleView extends RecyclerView.ViewHolder {
         View item;
         ImageView isSelected;
 
-        ViewHolder(View view) {
+        ThemeCircleView(View view) {
             super(view);
             item = view.findViewById(R.id.view);
             isSelected = (ImageView) view.findViewById(R.id.is_selected);
         }
     }
 
+    /**
+     * Méthode appelée lorsque l'on clique sur une vue.
+     *
+     * @param v vue appelant la méthode.
+     */
     @Override
     public void onClick(View v) {
-        mSelectedTheme = (Integer) v.getTag();
+        mSelectedTheme = (Integer) v.getTag(); // on reconnait la vue sélectionnée selon son tag (position dans la liste).
         listener.colorChanged(mSelectedTheme);
-        //notifyItemRangeChanged(0, getItemCount());
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // indique à la liste un changement dans ses items et les redessine.
     }
 
+    /**
+     * Interface permettant de notifier le changement de thème.
+     */
     public interface ThemesAdapterListener {
         void colorChanged(int index);
     }
